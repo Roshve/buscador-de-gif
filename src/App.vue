@@ -1,20 +1,17 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <SearchGif :text="text" />
-    <img :src="gifs" alt="" />
+    <input type="text" v-model="text" @keyup="peticion" />
+    <div v-for="(gif, index) in gifs" :key="index">
+      <img :src="gif.images.original.url" alt="" />
+    </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import SearchGif from "@/components/SearchGif.vue";
 
 export default {
   name: "App",
-  components: {
-    SearchGif,
-  },
 
   data: () => ({
     API_KEY: process.env.VUE_APP_GIF,
@@ -23,23 +20,34 @@ export default {
     gifs: null,
   }),
 
-  created() {
-    axios
-      .get(`${this.apiGif}api_key=${this.API_KEY}&limit=1&q=hol`)
-      .then(
-        (response) => (this.gifs = response.data.data[0].images.original.url)
-      );
+  methods: {
+    async peticion() {
+      if (this.text.length > 0) {
+        try {
+          await axios
+            .get(`${this.apiGif}api_key=${this.API_KEY}&limit=2&q=${this.text}`)
+            .then((response) => (this.gifs = response.data.data));
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    },
   },
 };
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+input {
+  height: 30px;
+  width: 600px;
+  border: 2px solid red;
+  border-radius: 4px;
+  outline: none;
+  padding-left: 10px;
+  font-size: 20px;
+}
+
+input:focus {
+  border-color: blue;
 }
 </style>
